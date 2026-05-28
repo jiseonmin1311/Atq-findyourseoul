@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATQ — Answer to Question</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0D0D0D;
+    --cream: #F4F2EE;
+    --red: #8B1A1A;
+    --gray: #a09a94;
+    --light-gray: #2a2825;
+  }
+
+  html, body {
+    background: #0D0D0D !important;
+    background-color: #0D0D0D !important;
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  #intro, #quiz, #result, #confirm {
+    background: #0D0D0D;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .screen {
+    display: none;
+    min-height: 100vh;
+    animation: fadeIn 0.8s ease forwards;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── INTRO ── */
+  #intro {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    position: relative;
+  }
+
+  .intro-line {
+    width: 1px;
+    height: 80px;
+    background: var(--cream);
+    opacity: 0.2;
+    margin: 0 auto 48px;
+    animation: lineGrow 1.2s ease forwards;
+    transform-origin: top;
+  }
+
+  @keyframes lineGrow {
+    from { transform: scaleY(0); opacity: 0; }
+    to { transform: scaleY(1); opacity: 0.2; }
+  }
+
+  .brand-tag {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .intro-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 10vw, 96px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .intro-title em {
+    font-style: italic;
+    color: var(--cream);
+    opacity: 0.5;
+  }
+
+  .intro-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(14px, 3vw, 20px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream);
+    margin-top: 24px;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .intro-ko {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    margin-bottom: 64px;
+  }
+
+  .intro-desc {
+    max-width: 380px;
+    font-size: 12px;
+    line-height: 2;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 64px;
+  }
+
+  .btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(244,242,238,0.25);
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 22px 48px;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.5s ease;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .btn-start::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--cream);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+    z-index: 0;
+  }
+
+  .btn-start:hover {
+    color: var(--bg);
+    border-color: var(--cream);
+  }
+
+  .btn-start:hover::before {
+    transform: translateX(0);
+  }
+
+  .btn-start-en,
+  .btn-start-ko,
+  .btn-start-arrow {
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-start-ko {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    opacity: 0.5;
+  }
+
+  .btn-start-arrow {
+    font-size: 14px;
+    opacity: 0.4;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .btn-start:hover .btn-start-arrow {
+    transform: translateX(4px);
+    opacity: 1;
+  }
+
+  .intro-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--cream);
+    opacity: 0.15;
+    margin: 40px auto;
+  }
+
+  .intro-instruction {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--cream);
+    opacity: 0.5;
+    line-height: 2;
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  .intro-instruction-ko {
+    font-size: 11px;
+    color: var(--gray);
+    opacity: 0.5;
+    letter-spacing: 0.15em;
+    line-height: 2;
+    margin-bottom: 48px;
+  }
+
+  .intro-footer {
+    position: absolute;
+    bottom: 32px;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    opacity: 0.4;
+    text-transform: uppercase;
+  }
+
+  /* ── QUIZ ── */
+  #quiz {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px 24px;
+  }
+
+  .quiz-inner {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 64px;
+  }
+
+  .quiz-brand {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .quiz-progress {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--gray);
+    font-style: italic;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 1px;
+    background: var(--light-gray);
+    margin-bottom: 64px;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--cream);
+    opacity: 0.4;
+    transition: width 0.6s ease;
+  }
+
+  .step-label {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    opacity: 0.5;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .step-scene {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--gray);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    letter-spacing: 0.03em;
+  }
+
+  .step-scene-ko {
+    font-size: 11px;
+    color: var(--gray);
+    opacity: 0.5;
+    margin-bottom: 32px;
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+  }
+
+  .question-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .question-ko {
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 0.15em;
+    margin-bottom: 48px;
+    line-height: 1.8;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 20px 0;
+    border-top: 1px solid rgba(244,242,238,0.08);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .option:last-child {
+    border-bottom: 1px solid rgba(244,242,238,0.08);
+  }
+
+  .option-letter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--gray);
+    min-width: 16px;
+    margin-top: 2px;
+    transition: color 0.3s ease;
+  }
+
+  .option-text {
+    flex: 1;
+  }
+
+  .option-en {
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    color: var(--cream);
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+  }
+
+  .option-ko {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+    margin-top: 4px;
+    opacity: 0.5;
+  }
+
+  .option:hover .option-en {
+    opacity: 1;
+  }
+
+  .option:hover .option-letter {
+    color: var(--cream);
+  }
+
+  .option.selected {
+    background: rgba(244,242,238,0.03);
+  }
+
+  .option.selected .option-en {
+    opacity: 1;
+  }
+
+  .option.selected .option-letter {
+    color: var(--cream);
+  }
+
+  .option-arrow {
+    font-size: 11px;
+    color: var(--gray);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    margin-top: 4px;
+  }
+
+  .option:hover .option-arrow,
+  .option.selected .option-arrow {
+    opacity: 0.5;
+  }
+
+  /* ── RESULT ── */
+  #result {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px 24px;
+    text-align: center;
+  }
+
+  .result-inner {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .result-archive-no {
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    color: var(--gray);
+    opacity: 0.5;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .result-location {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(48px, 10vw, 80px);
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .result-location-ko {
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    margin-bottom: 48px;
+  }
+
+  .result-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--cream);
+    opacity: 0.2;
+    margin: 0 auto 48px;
+  }
+
+  .result-copy {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(16px, 3vw, 20px);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--cream);
+    opacity: 1;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+
+  .result-copy-ko {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.15em;
+    line-height: 2;
+    margin-bottom: 64px;
+    opacity: 0.6;
+  }
+
+  /* EMAIL SECTION */
+  .email-section {
+    border-top: 1px solid rgba(244,242,238,0.1);
+    padding-top: 48px;
+    margin-bottom: 48px;
+  }
+
+  .email-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+
+  .email-title-ko {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.2em;
+    margin-bottom: 32px;
+    opacity: 0.6;
+  }
+
+  .message-prompt {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--gray);
+    margin-bottom: 16px;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  .message-prompt-ko {
+    font-size: 10px;
+    color: var(--gray);
+    opacity: 0.4;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(244,242,238,0.15);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 300;
+    padding: 16px;
+    resize: none;
+    height: 100px;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color 0.3s ease;
+    margin-bottom: 2px;
+  }
+
+  textarea::placeholder {
+    color: var(--gray);
+    opacity: 0.4;
+    font-style: italic;
+  }
+
+  textarea:focus {
+    border-color: rgba(244,242,238,0.3);
+  }
+
+  .char-hint {
+    font-size: 9px;
+    color: var(--gray);
+    opacity: 0.3;
+    letter-spacing: 0.2em;
+    text-align: right;
+    margin-bottom: 24px;
+  }
+
+  input[type="email"],
+  input[type="text"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(244,242,238,0.15);
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    padding: 12px 0;
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.3s ease;
+    margin-bottom: 16px;
+  }
+
+  input[type="email"]::placeholder,
+  input[type="text"]::placeholder {
+    color: var(--gray);
+    opacity: 0.4;
+  }
+
+  input[type="email"]:focus,
+  input[type="text"]:focus {
+    border-bottom-color: rgba(244,242,238,0.4);
+  }
+
+  .btn-submit {
+    width: 100%;
+    border: 1px solid rgba(244,242,238,0.3);
+    color: var(--cream);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 18px;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--cream);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+
+  .btn-submit:hover {
+    color: var(--bg);
+    border-color: var(--cream);
+  }
+
+  .btn-submit:hover::before {
+    transform: translateX(0);
+  }
+
+  /* CONFIRMATION */
+  #confirm {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px 24px;
+    text-align: center;
+  }
+
+  .confirm-inner {
+    max-width: 400px;
+  }
+
+  .confirm-mark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    font-weight: 300;
+    color: var(--cream);
+    opacity: 0.2;
+    margin-bottom: 32px;
+  }
+
+  .confirm-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+
+  .confirm-title-ko {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    margin-bottom: 40px;
+    opacity: 0.6;
+  }
+
+  .confirm-desc {
+    font-size: 12px;
+    line-height: 2.2;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .confirm-desc-ko {
+    font-size: 11px;
+    line-height: 2;
+    color: var(--gray);
+    opacity: 0.5;
+    letter-spacing: 0.1em;
+    margin-bottom: 64px;
+  }
+
+  .confirm-archive {
+    font-size: 9px;
+    letter-spacing: 0.4em;
+    color: var(--gray);
+    opacity: 0.3;
+    text-transform: uppercase;
+    margin-bottom: 64px;
+  }
+
+  .btn-again {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    opacity: 0.4;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-again:hover { opacity: 0.8; }
+
+  /* SKIP LINK */
+  .result-photo {
+    width: 100%;
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 40px;
+    filter: grayscale(20%) brightness(0.85);
+    display: none; /* 사진 URL 추가 전까지 숨김 */
+  }
+
+  .result-address {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--gray);
+    opacity: 0.5;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+  }
+
+  .error-msg {
+    font-size: 10px;
+    color: #c0392b;
+    letter-spacing: 0.08em;
+    margin-top: -8px;
+    margin-bottom: 12px;
+    display: none;
+    line-height: 1.6;
+  }
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--cream);
+    opacity: 0.75;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .email-subtitle-note {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--gray);
+    opacity: 0.6;
+    line-height: 2;
+    margin-bottom: 40px;
+  }
+
+  .consent-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 20px 0 24px;
+    cursor: pointer;
+  }
+
+  .consent-label input[type="checkbox"] {
+    width: 14px;
+    min-width: 14px;
+    height: 14px;
+    margin-top: 3px;
+    accent-color: var(--cream);
+    cursor: pointer;
+    border: none;
+    border-bottom: none;
+    padding: 0;
+    margin-bottom: 0;
+  }
+
+  .consent-text {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    line-height: 1.9;
+    opacity: 0.7;
+  }
+
+  .confirm-desc-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gray);
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    margin-bottom: 48px;
+    opacity: 0.7;
+  }
+
+  .confirm-desc {
+    font-size: 12px;
+    line-height: 2.2;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div class="screen active" id="intro">
+  <div class="intro-line"></div>
+  <p class="brand-tag">Artetique Inc. — Seoul, Korea</p>
+  <h1 class="intro-title">Answer<br><em>to</em><br>Question</h1>
+  <p class="intro-subtitle">Which Seoul are you?</p>
+  <p class="intro-ko">당신은 어떤 서울인가요?</p>
+  <p class="intro-desc">
+    Seoul holds nine atmospheres.<br>
+    Each one is a place, a light, a feeling.<br>
+    Five questions will find yours.
+  </p>
+
+  <div class="intro-divider"></div>
+
+  <p class="intro-instruction">
+    Take a moment.<br>
+    Answer slowly.<br>
+    There are no wrong answers.
+  </p>
+  <p class="intro-instruction-ko">
+    천천히 답해주세요.<br>
+    틀린 답은 없습니다.
+  </p>
+
+  <button class="btn-start" onclick="startQuiz()">
+    <span class="btn-start-en">Enter Seoul</span>
+    <span class="btn-start-ko">서울로 들어가기</span>
+    <span class="btn-start-arrow">→</span>
+  </button>
+
+  <p class="intro-footer">ATQ — Archive No. 2026 · Paris</p>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="quiz">
+  <div class="quiz-inner">
+    <div class="quiz-header">
+      <span class="quiz-brand">ATQ</span>
+      <span class="quiz-progress" id="progress-text">01 / 05</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:20%"></div>
+    </div>
+    <p class="step-label" id="step-label"></p>
+    <p class="step-scene" id="step-scene"></p>
+    <p class="step-scene-ko" id="step-scene-ko"></p>
+    <h2 class="question-en" id="question-en"></h2>
+    <p class="question-ko" id="question-ko"></p>
+    <div class="options" id="options"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="result">
+  <div class="result-inner">
+    <div id="result-photo" class="result-photo"></div>
+    <p class="result-archive-no" id="archive-no"></p>
+    <h2 class="result-location" id="result-location"></h2>
+    <p class="result-location-ko" id="result-location-ko"></p>
+    <p class="result-address" id="result-address"></p>
+    <div class="result-divider"></div>
+    <p class="result-copy" id="result-copy"></p>
+
+    <div class="email-section">
+      <h3 class="email-title">We will send Seoul to you.</h3>
+      <p class="email-subtitle">
+        On the day ATQ officially launches,<br>
+        your Seoul archive — and the message you leave today —<br>
+        will find their way back to you.
+      </p>
+      <p class="email-subtitle-note">
+        We don't know exactly when that day will come.<br>
+        But it will.
+      </p>
+
+      <p class="message-prompt">Leave a message for yourself</p>
+      <textarea id="user-message" placeholder="Move slowly. Don't forget this feeling." maxlength="200"></textarea>
+      <p class="char-hint">max 200 characters</p>
+
+      <input type="text" id="user-name" placeholder="Your name (optional)">
+      <input type="email" id="user-email" placeholder="Your email address">
+      <p class="error-msg" id="email-error"></p>
+
+      <label class="consent-label">
+        <input type="checkbox" id="consent-check">
+        <span class="consent-text">
+          I agree to receive a single email from ATQ (Artetique Inc.) on the day of our official launch. My information will not be shared with third parties or used for any other purpose.
+        </span>
+      </label>
+
+      <button class="btn-submit" onclick="submitEmail()">
+        Send to my future self →
+      </button>
+      <button class="skip-email" onclick="skipEmail()">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div class="screen" id="confirm">
+  <div class="confirm-inner">
+    <div class="confirm-mark">✦</div>
+    <h2 class="confirm-title">Your Seoul is archived.</h2>
+    <p class="confirm-desc">
+      Somewhere between now and the day ATQ arrives in the world,<br>
+      your Seoul will find you again.
+    </p>
+    <p class="confirm-desc-sub">
+      We will send it to you — with the message you left today.
+    </p>
+    <p class="confirm-archive" id="confirm-archive-no"></p>
+    <button class="btn-again" onclick="resetQuiz()">Take the quiz again</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    step: "Step 01 — Arrival",
+    scene: "You've just arrived in Seoul. It's your first morning.",
+    en: "What kind of morning do you need?",
+    options: [
+      { en: "I wake up before the city does, and walk somewhere green", scores: { nature: 2, urban: 0, still: 2, active: 0, heritage: 0 } },
+      { en: "I sit by the water and watch the light change", scores: { nature: 2, urban: 0, still: 1, active: 1, heritage: 0 } },
+      { en: "I find the highest point and look down at everything", scores: { nature: 1, urban: 1, still: 0, active: 2, heritage: 0 } }
+    ]
+  },
+  {
+    step: "Step 02 — First Place",
+    scene: "Seoul is opening up in front of you.",
+    en: "What part of Seoul would you walk through alone?",
+    options: [
+      { en: "A quiet forest path inside the city", scores: { nature: 2, urban: 0, still: 2, active: 0, heritage: 0 } },
+      { en: "Along the river, with no destination", scores: { nature: 1, urban: 1, still: 1, active: 1, heritage: 0 } },
+      { en: "Narrow alleyways between old walls and new cafes", scores: { nature: 0, urban: 2, still: 1, active: 1, heritage: 1 } }
+    ]
+  },
+  {
+    step: "Step 03 — Walking",
+    scene: "You've been walking for hours.",
+    en: "What kind of light stays with you?",
+    options: [
+      { en: "Pale dawn light through leaves", scores: { nature: 2, urban: 0, still: 2, active: 0, heritage: 0 } },
+      { en: "Silver reflections on water", scores: { nature: 1, urban: 1, still: 1, active: 1, heritage: 0 } },
+      { en: "Warm amber at dusk, scattered across old stone", scores: { nature: 0, urban: 1, still: 1, active: 0, heritage: 2 } }
+    ]
+  },
+  {
+    step: "Step 04 — Impression",
+    scene: "You pause and take it all in.",
+    en: "When you think of Seoul, what comes to mind first?",
+    options: [
+      { en: "Palaces, history, the weight of time", scores: { nature: 0, urban: 1, still: 1, active: 0, heritage: 3 } },
+      { en: "Han River, open sky, weekend stillness", scores: { nature: 1, urban: 1, still: 2, active: 0, heritage: 0 } },
+      { en: "Street energy, new buildings, something always changing", scores: { nature: 0, urban: 2, still: 0, active: 3, heritage: 0 } }
+    ]
+  },
+  {
+    step: "Step 05 — Last Evening",
+    scene: "It's your last evening in Seoul.",
+    en: "What would you do?",
+    options: [
+      { en: "Sit quietly in a palace garden, watching the light fade", scores: { nature: 0, urban: 1, still: 2, active: 0, heritage: 2 } },
+      { en: "Walk along the Han River until the city turns to reflection", scores: { nature: 1, urban: 1, still: 1, active: 1, heritage: 0 } },
+      { en: "Lose myself in Seongsu-dong, finding one more thing to discover", scores: { nature: 0, urban: 2, still: 0, active: 3, heritage: 0 } }
+    ]
+  }
+];
+
+const locations = [
+  {
+    name: "Seoul Forest",
+    nameKo: "서울숲",
+    code: "SF",
+    time: "0715",
+    address: "273 Ttukseom-ro, Seongdong-gu, Seoul",
+    photo: "", // 사진 URL 추가 예정
+    copy: "You are drawn to stillness, green air, and the quiet hours before the world begins. Seoul Forest is ATQ's answer to your question.",
+    condition: s => s.nature >= 6 && s.still >= 5
+  },
+  {
+    name: "Han River",
+    nameKo: "한강",
+    code: "HR",
+    time: "2042",
+    address: "Hangang-daero, Yongsan-gu, Seoul",
+    photo: "",
+    copy: "You are drawn to reflections, open sky, and the gentle movement of things that flow. Han River is ATQ's answer to your question.",
+    condition: s => s.nature >= 4 && s.still >= 3 && s.active <= 3
+  },
+  {
+    name: "Namsan",
+    nameKo: "남산",
+    code: "NS",
+    time: "0642",
+    address: "105 Namsangongwon-gil, Yongsan-gu, Seoul",
+    photo: "",
+    copy: "You seek perspective — the kind only found when you rise above. Namsan is ATQ's answer to your question.",
+    condition: s => s.active >= 4 && s.nature >= 2
+  },
+  {
+    name: "Gyeongbokgung",
+    nameKo: "경복궁",
+    code: "GB",
+    time: "1000",
+    address: "161 Sajik-ro, Jongno-gu, Seoul",
+    photo: "",
+    copy: "You are moved by grandeur, ceremony, and the enduring presence of history. Gyeongbokgung is ATQ's answer to your question.",
+    condition: s => s.heritage >= 5
+  },
+  {
+    name: "Bukchon",
+    nameKo: "북촌",
+    code: "BC",
+    time: "0900",
+    address: "Bukchon-ro, Jongno-gu, Seoul",
+    photo: "",
+    copy: "You find beauty in balance — old and new, silence and presence. Bukchon is ATQ's answer to your question.",
+    condition: s => s.urban >= 3 && s.heritage >= 2 && s.still >= 3
+  },
+  {
+    name: "National Museum of Korea",
+    nameKo: "국립중앙박물관",
+    code: "NM",
+    time: "1400",
+    address: "137 Seobinggo-ro, Yongsan-gu, Seoul",
+    photo: "",
+    copy: "You are moved by depth, by things that outlast their moment. The National Museum is ATQ's answer to your question.",
+    condition: s => s.heritage >= 3 && s.still >= 4
+  },
+  {
+    name: "Changgyeonggung",
+    nameKo: "창경궁",
+    code: "CG",
+    time: "1130",
+    address: "185 Changgyeonggung-ro, Jongno-gu, Seoul",
+    photo: "",
+    copy: "You are drawn to quiet revival — the gentle return of something beautiful. Changgyeonggung is ATQ's answer to your question.",
+    condition: s => s.nature >= 2 && s.heritage >= 2 && s.still >= 2
+  },
+  {
+    name: "Deoksugung",
+    nameKo: "덕수궁",
+    code: "DS",
+    time: "1812",
+    address: "99 Sejong-daero, Jung-gu, Seoul",
+    photo: "",
+    copy: "You find meaning in things that hold time tenderly — in streets that carry memory. Deoksugung is ATQ's answer to your question.",
+    condition: s => s.heritage >= 2 && s.urban >= 2
+  },
+  {
+    name: "Seongsu-dong",
+    nameKo: "성수동",
+    code: "SD",
+    time: "1500",
+    address: "Seongsu-dong 2-ga, Seongdong-gu, Seoul",
+    photo: "",
+    copy: "You are drawn to the energy of becoming — places still writing their story. Seongsu-dong is ATQ's answer to your question.",
+    condition: s => s.active >= 5 && s.urban >= 3
+  }
+];
+
+let currentQ = 0;
+let scores = { nature: 0, urban: 0, still: 0, active: 0, heritage: 0 };
+let resultLocation = null;
+
+function startQuiz() {
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('progress-text').textContent = `0${currentQ+1} / 05`;
+  document.getElementById('progress-fill').style.width = `${((currentQ+1)/5)*100}%`;
+  document.getElementById('step-label').textContent = q.step;
+  document.getElementById('step-scene').textContent = q.scene;
+  document.getElementById('step-scene-ko').textContent = '';
+  document.getElementById('question-en').textContent = q.en;
+  document.getElementById('question-ko').textContent = '';
+
+  const optContainer = document.getElementById('options');
+  optContainer.innerHTML = '';
+  const letters = ['A', 'B', 'C'];
+
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `
+      <span class="option-letter">${letters[i]}</span>
+      <div class="option-text">
+        <div class="option-en">${opt.en}</div>
+      </div>
+      <span class="option-arrow">→</span>
+    `;
+    div.addEventListener('click', () => selectOption(i, div));
+    optContainer.appendChild(div);
+  });
+}
+
+function selectOption(i, el) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+
+  setTimeout(() => {
+    const opt = questions[currentQ].options[i];
+    Object.keys(opt.scores).forEach(k => { scores[k] += opt.scores[k]; });
+    currentQ++;
+    if (currentQ < questions.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 400);
+}
+
+function showResult() {
+  resultLocation = getResult();
+  document.getElementById('archive-no').textContent = `ATQ-${resultLocation.code}-${resultLocation.time}`;
+  document.getElementById('result-location').textContent = resultLocation.name;
+  document.getElementById('result-location-ko').textContent = resultLocation.nameKo;
+  document.getElementById('result-address').textContent = resultLocation.address;
+  document.getElementById('result-copy').textContent = resultLocation.copy;
+
+  // 사진: URL이 있으면 표시, 없으면 숨김
+  const photoEl = document.getElementById('result-photo');
+  if (resultLocation.photo) {
+    photoEl.style.backgroundImage = `url(${resultLocation.photo})`;
+    photoEl.style.display = 'block';
+  } else {
+    photoEl.style.display = 'none';
+  }
+
+  showScreen('result');
+}
+
+function getResult() {
+  for (const loc of locations) {
+    if (loc.condition(scores)) return loc;
+  }
+  // fallback
+  const maxKey = Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
+  if (maxKey === 'nature' && scores.still > scores.active) return locations[0];
+  if (maxKey === 'nature') return locations[2];
+  if (maxKey === 'heritage') return locations[3];
+  if (maxKey === 'active') return locations[8];
+  return locations[1];
+}
+
+// ── Google Sheets 연동 ──
+// 배포 후 아래 URL을 Apps Script 웹앱 URL로 교체하세요
+const GOOGLE_SHEET_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+async function submitEmail() {
+  const email = document.getElementById('user-email').value.trim();
+  const name = document.getElementById('user-name').value.trim();
+  const message = document.getElementById('user-message').value.trim();
+  const consent = document.getElementById('consent-check').checked;
+  const emailError = document.getElementById('email-error');
+
+  // 이메일 검증
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) {
+    emailError.textContent = 'Please enter your email address.';
+    emailError.style.display = 'block';
+    document.getElementById('user-email').style.borderBottomColor = 'rgba(139,26,26,0.8)';
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    emailError.textContent = 'Please enter a valid email address. (e.g. name@example.com)';
+    emailError.style.display = 'block';
+    document.getElementById('user-email').style.borderBottomColor = 'rgba(139,26,26,0.8)';
+    return;
+  }
+  emailError.style.display = 'none';
+  document.getElementById('user-email').style.borderBottomColor = 'rgba(244,242,238,0.15)';
+
+  if (!consent) {
+    alert('Please agree to the data usage policy to continue.');
+    return;
+  }
+
+  const payload = {
+    name: name || 'Anonymous',
+    email,
+    message,
+    location: resultLocation.name,
+    archiveNo: `ATQ-${resultLocation.code}-${resultLocation.time}`
+  };
+
+  try {
+    await fetch(GOOGLE_SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('Sheet save failed:', e);
+  }
+
+  document.getElementById('confirm-archive-no').textContent = `ATQ-${resultLocation.code}-${resultLocation.time}`;
+  showScreen('confirm');
+}
+
+function skipEmail() {
+  document.getElementById('confirm-archive-no').textContent = `ATQ-${resultLocation.code}-${resultLocation.time}`;
+  showScreen('confirm');
+}
+
+function resetQuiz() {
+  currentQ = 0;
+  scores = { nature: 0, urban: 0, still: 0, active: 0, heritage: 0 };
+  resultLocation = null;
+  document.getElementById('user-email').value = '';
+  document.getElementById('user-name').value = '';
+  document.getElementById('user-message').value = '';
+  showScreen('intro');
+}
+</script>
+</body>
+</html>
