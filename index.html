@@ -725,12 +725,16 @@
 
   .error-msg {
     font-size: 10px;
-    color: #c0392b;
+    color: #e05555;
     letter-spacing: 0.08em;
     margin-top: -8px;
     margin-bottom: 12px;
     display: none;
     line-height: 1.6;
+  }
+
+  input[type="email"].error {
+    border-bottom-color: rgba(224,85,85,0.8) !important;
   }
     font-size: 15px;
     font-style: italic;
@@ -895,7 +899,7 @@
         </span>
       </label>
 
-      <button class="btn-submit" onclick="submitEmail()">
+      <button class="btn-submit" onclick="submitEmail(); return false;">
         Send to my future self →
       </button>
       <button class="skip-email" onclick="skipEmail()">Skip</button>
@@ -1171,23 +1175,29 @@ async function submitEmail() {
   const message = document.getElementById('user-message').value.trim();
   const consent = document.getElementById('consent-check').checked;
   const emailError = document.getElementById('email-error');
-
-  // 이메일 검증
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailInput = document.getElementById('user-email');
+
+  let valid = true;
+
   if (!email) {
     emailError.textContent = 'Please enter your email address.';
     emailError.style.display = 'block';
-    document.getElementById('user-email').style.borderBottomColor = 'rgba(139,26,26,0.8)';
-    return;
-  }
-  if (!emailRegex.test(email)) {
+    emailInput.classList.add('error');
+    emailInput.focus();
+    valid = false;
+  } else if (!emailRegex.test(email)) {
     emailError.textContent = 'Please enter a valid email address. (e.g. name@example.com)';
     emailError.style.display = 'block';
-    document.getElementById('user-email').style.borderBottomColor = 'rgba(139,26,26,0.8)';
-    return;
+    emailInput.classList.add('error');
+    emailInput.focus();
+    valid = false;
+  } else {
+    emailError.style.display = 'none';
+    emailInput.classList.remove('error');
   }
-  emailError.style.display = 'none';
-  document.getElementById('user-email').style.borderBottomColor = 'rgba(244,242,238,0.15)';
+
+  if (!valid) return;
 
   if (!consent) {
     alert('Please agree to the data usage policy to continue.');
