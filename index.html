@@ -73,6 +73,14 @@
     z-index: -1;
   }
 
+  .intro-logo {
+    width: 120px;
+    height: auto;
+    filter: invert(1);
+    opacity: 0.85;
+    margin-bottom: 32px;
+  }
+
   .intro-line {
     width: 1px;
     height: 80px;
@@ -499,10 +507,10 @@
 
   .email-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
+    font-size: 24px;
     font-style: italic;
     font-weight: 300;
-    margin-bottom: 8px;
+    margin-bottom: 28px;
     letter-spacing: 0.02em;
   }
 
@@ -792,11 +800,11 @@
   }
 
   .email-subtitle-note {
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 13px;
+    letter-spacing: 0.08em;
     color: var(--gray);
-    opacity: 0.6;
-    line-height: 2;
+    opacity: 0.8;
+    line-height: 2.2;
     margin-bottom: 40px;
   }
 
@@ -855,7 +863,7 @@
 
 <!-- INTRO -->
 <div class="screen active" id="intro">
-  <div class="intro-line"></div>
+  <img id="intro-logo" class="intro-logo" alt="ATQ">
   <p class="brand-tag">COSWAY — Seoul, Korea</p>
   <h1 class="intro-title">Answer<br><em>to</em><br>Question</h1>
   <p class="intro-subtitle">Which Seoul are you?</p>
@@ -921,13 +929,16 @@
       <h3 class="email-title">We will send Seoul to you.</h3>
       <p class="email-subtitle">
         On the day ATQ officially launches,<br>
-        your Seoul archive — and the message you leave today —<br>
+        your Seoul archive —<br>
+        and the message you leave today —<br>
         will find their way back to you.
       </p>
       <p class="email-subtitle-note">
         We don't know exactly when that day will come.<br>
         But it will.
       </p>
+
+      <div style="height: 28px;"></div>
 
       <p class="message-prompt">Leave a message for yourself</p>
       <textarea id="user-message" placeholder="Move slowly. Don't forget this feeling." maxlength="200"></textarea>
@@ -968,6 +979,9 @@
     <button class="btn-again" onclick="resetQuiz()">Take the quiz again</button>
     <a class="btn-website" href="https://atq-website.vercel.app/#/" target="_blank">
       Visit ATQ — Archive of Seoul →
+    </a>
+    <a class="btn-website" href="https://www.instagram.com/atqseoul_official?igsh=dHJ3ZXJvajdydDQ4" target="_blank" style="margin-top:12px;">
+      Instagram · @atqseoul_official →
     </a>
   </div>
 </div>
@@ -1176,10 +1190,12 @@ function getResult() {
 // ── Google Sheets 연동 ──
 // 배포 후 아래 URL을 Apps Script 웹앱 URL로 교체하세요
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('intro-logo').src = IMG_LOGO;
   document.getElementById('intro').style.setProperty('--intro-bg', 'url(' + IMG_MAINBG + ')');
 });
 
-const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwgN60zBLtqwKrPIMEKMAskVlWNzEeyYm1OlAcazr3_QASuAwv-ehkUY4hltrv0H6Ik/exec';
+const IMG_LOGO = "data:image/png;base64,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";
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzAVvE3nI8lQuSDaOX4XAyI0xILZOVBZXs6-WvZBy6MYU2mRfuGJhbYjwLhJLVNiSMN/exec';
 
 async function submitEmail() {
   const email = document.getElementById('user-email').value.trim();
